@@ -1,8 +1,7 @@
 escpos-python
 =============
 
-Another ESC/POS Library for Python
-
+Yet another implementation of ESC/POS library for ESC/POS Printers base on Juliano Bittencourt's original version(See: https://github.com/jbittencourt/python-escpos).
 
 ESCPOS from Juliano Bittencourt
 ======

@@ -4,7 +4,7 @@ from distutils.core import setup
 from escpos import __version__
 setup(name='escpos',
       version=__version__,
-      description='Yet another implementation of ESC/POS library for ESC/POS Printers thanks to Juliano Bittencourt\'s original version.',
+      description='Yet another implementation of ESC/POS library for ESC/POS Printers base on Juliano Bittencourt\'s original version.',
       author='Mingcai SHEN, Juliano Bittencourt',
       author_email='archsh@gmail.com,juliano@hardfunstudios.com',
       url='https://github.com/archsh/escpos-python',
