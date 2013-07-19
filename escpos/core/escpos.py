@@ -169,7 +169,6 @@ class Escpos(object):
 
         self._print_image(pix_line, img_size)
 
-
     def barcode(self, code, bc, width, height, pos, font):
         """ Print Barcode """
         output = list()
@@ -228,9 +227,62 @@ class Escpos(object):
         """ Print alpha-numeric text """
         if txt:
             self._raw(txt)
+    
+    def font(self, font=None,type=None,width=None,height=None):
+        output = list()
+        if font and font.upper() == "B":
+            output.append(self.TXT_FONT_B)
+        else:  # DEFAULT FONT: A
+            output.append(self.TXT_FONT_A)
+        # Type
+        if type is not None:
+            if type.upper() == "B":
+                output.append(self.TXT_BOLD_ON)
+                output.append(self.TXT_UNDERL_OFF)
+            elif type.upper() == "U":
+                output.append(self.TXT_BOLD_OFF)
+                output.append(self.TXT_UNDERL_ON)
+            elif type.upper() == "U2":
+                output.append(self.TXT_BOLD_OFF)
+                output.append(self.TXT_UNDERL2_ON)
+            elif type.upper() == "BU":
+                output.append(self.TXT_BOLD_ON)
+                output.append(self.TXT_UNDERL_ON)
+            elif type.upper() == "BU2":
+                output.append(self.TXT_BOLD_ON)
+                output.append(self.TXT_UNDERL2_ON)
+            elif type.upper == "NORMAL":
+                output.append(self.TXT_BOLD_OFF)
+                output.append(self.TXT_UNDERL_OFF)
+        # Width
+        if width is not None and height is not None:
+            if width == 2 and height != 2:
+                output.append(self.TXT_NORMAL)
+                output.append(self.TXT_2WIDTH)
+            elif height == 2 and width != 2:
+                output.append(self.TXT_NORMAL)
+                output.append(self.TXT_2HEIGHT)
+            elif height == 2 and width == 2:
+                output.append(self.TXT_2WIDTH)
+                output.append(self.TXT_2HEIGHT)
+            else: # DEFAULT SIZE: NORMAL
+                output.append(self.TXT_NORMAL)
+        
+        if output:
+            self._raw(''.join(output))
+    
+    def align(self, align=None):
+        # Align
+        if align is not None:
+            if align.upper() == "CENTER":
+                self._raw(self.TXT_ALIGN_CT)
+            elif align.upper() == "RIGHT":
+                self._raw(self.TXT_ALIGN_RT)
+            elif align.upper() == "LEFT":
+                self._raw(self.TXT_ALIGN_LT)
         else:
-            raise TextError()
-
+            output.append(self.TXT_ALIGN_LT)
+     
     def set(self, align=None, font=None, type=None, width=None, height=None):
         """ Set text properties """
         output = list()

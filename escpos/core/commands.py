@@ -311,11 +311,278 @@ GS_2a_x_y='\x1d\x2a'
                     # Defines the download bit image of the number of dots specified by x and y.
                     # x specifies the number of dots in the horizontal direction.
                     # y specifies the number of bytes in the vertical direction.
+GS_28_41_pL_pH_n_m='\x1d\x28\x41'
+                    # Test print
+                    # GS ( A pL pH n m
+                    # {pL+ (pH×256) } = 2 (pL = 2,pH = 0)
+                    # 0 ≤ n ≤ 2, 48 ≤ n ≤ 50
+                    # 1 ≤ m ≤ 3, 49 ≤ m ≤ 51
+                    # Executes the specified test print.
+                    # Specifies the parameter count following pL and pH in (pL + (pH x 256)) bytes.
+                    # n specifies the paper to use in the test print shown in the tables below.
+                    # N Paper Type
+                    # 0, 48 Basic sheet (paper roll)
+                    # 1, 49
+                    # 2, 50
+                    # Paper Roll
+                    #  m specifies the type of test print shown in the tables below.
+                    # m Type of Test Print
+                    # 1, 49 Hexadecimal Dump
+                    # 2, 50 Printer Status (Self Print)
+                    # 3, 51 Rolling Pattern Print
+GS_28_4b_pL_pH_n_m='\x1d\x28\x4b'
+                    # Set print density
+                    # GS ( K pL pH n m
+                    # {pL + (pH × 256) } = 2 (pL = 2, pH = 0)
+                    # n = 49
+                    # 250 ≤ m ≤ 255, 0 ≤ m ≤ 6
+GS_28_4e_pL_pH_n_m='\x1d\x28\x4e'
+                    # Specify print color
+                    # GS ( N pL pH n m
+                    # {pL+ (pH×256) } = 2 (pL = 2,pH = 0)
+                    # n = 48
+                    # m = 49,50
+                    # Initial Value m = 49
+GS_2f_m='\x1d\x2f'  # Print download bit images
+                    # 0 ≤ m ≤ 3, 48 ≤ m ≤ 51
+                    # Prints defined download bit image data using mode m.
+                    #
+GS_2a='\x1d\x3a'    # Start/execute macro definition
+                    # Starts and stops macro definition.
+GS_42_n='\x1d\x42'  # Specify/cancel white/black inverted printing
+                    # 0 ≤ n ≤ 255, Initial Value n = 0
+                    # Specifies or cancels black and white inverted printing.
+                    #  Cancels black and white inverted printing when n = <*******0>B.
+                    #  Specifies black and white inverted printing when n = <*******1>B.
+GS_43_30_n_m='\x1d\x43\x30'
+                    # Set counter print mode
+                    # 0 ≤ n ≤ 5, 0 ≤ m ≤ 2, 48 ≤ m ≤ 50
+                    # Sets the serial number counter print mode.
+GS_43_31_aL_aH_bL_bH_n_r='\x1d\x43\x31'
+                    # Set Counter Mode (A)
+                    # GS C 1 aL aH bL bH n r
+                    # 0 ≤ aL ≤ 255, 0 ≤ aH ≤ 255, 0 ≤ bL ≤ 255, 0 ≤ bH ≤ 255, 0 ≤ n ≤ 255, 0 ≤ r ≤ 255
+                    # Initial Value aL = 1, aH = 0, bL = 255, bH = 255, n = 0, r = 1
+                    # Sets the counter mode for the serial counter.
+GS_43_32_nL_nH='\x1d\x43\x32'
+                    # Set counter mode value
+                    # GS C 2 nL nH
+                    # 0 ≤ nL ≤ 255, 0 ≤ nH ≤ 255, Initial Value nL = 1, nH = 0
+                    # Sets the serial number counter value.
+GS_45_n='\x1d\x45'  # Set printing speed
+                    # 0 ≤ n ≤ 255, Initial Value n = 0
+                    # Sets print speed.
+                    # Print Speed
+                    # Bit-5 Bit-4 Print Speed
+                    # 0 0 High speed
+                    # 0 1 Mid-speed
+                    # 1 0 Slow speed
+                    # 1 1 Undefined
+GS_48_n='\x1d\x48'  # Select HRI character print position
+                    # 0 ≤ n ≤ 3, 48 ≤ n ≤ 51
+                    # Selects the printing position of HRI characters when printing bar codes.
+                    # m Printing Position
+                    # 0, 48 No print
+                    # 1, 49 Above bar code
+                    # 2, 50 Below bar code
+                    # 3, 51 Above and below bar code (both)
+GS_49_n='\x1d\x49'  # Transmission of Printer ID
+                    # 1 ≤ n ≤ 3, 49 ≤ n ≤ 51, 65 ≤ n ≤ 69
+                    # Sends the specified printer ID.
+GS_4c_nL_nH='\x1d\x4c'
+                    # Set left margin
+                    # 0 ≤ nL ≤ 255, 0 ≤ nH ≤ 255, Initial Value nL = 0,nH = 0
+                    #  nL and nH set the specified left margin.
+                    # The left margin is [(nL + nH x 256) x basic calculated pitch]
+GS_50_x_y='\x1d\x50'
+                    # Set basic calculated pitch
+                    # 0 ≤ x ≤ 255, 0 ≤ y ≤ 255
+                    # Initial Value x = 180, y = 360: EPSON targeted model print head 180 DPI
+                    # x = 203, y = 203: EPSON targeted model print head 203 DPI
+                    # Sets the horizontal basic calculated pitch to approximately 25.4/xmm [(1/x) inch], and the vertical
+                    # basic calculated pitch to approximately 25.4/ymm [(1/y) inch].
+                    #  x = 0: Returns the horizontal basic calculated pitch to its default value.
+                    #  y = 0: Returns the vertical basic calculated pitch to its default value.
+GS_54_n='\x1d\x54'  # Move to top of line
+                    # n = 0,1,48,49
+                    # Moves print position to top of line.
+                    #  This command is effective only in standard mode. It is ignored in page mode.
+                    # n Function
+                    # 0, 48 After erasing data in the printer buffer, it moves the print position.
+                    # 1, 49 After printing data in the printer buffer, it moves the print position.
+GS_56_m='\x1d\x56'  # Cut paper
+                    # m = 0,1,48,49
+                    # Executes specified paper cut.
+                    # m Function
+                    # 0, 48 Full cut
+                    # 1, 49 Partial cut (one point uncut)
+                    # 2, 50 Not Used
+                    # 3, 51 Not Used
+                    # 65 Feeds paper to (cutting position + [n x basic calculated pitch]) and performs a full cut
+                    # 66 Feeds paper to (cutting position + [n x basic calculated pitch]) and performs a partial cut
+                    # (one point uncut)
+                    # 67 Not Used
+                    # 68 Not Used
+GS_56_m_n='\x1d\x56'
+                    # Cut paper
+                    # m = 65, 66, 0 ≤ n ≤ 255
+                    # Executes specified paper cut.
+                    # m Function
+                    # 0, 48 Full cut
+                    # 1, 49 Partial cut (one point uncut)
+                    # 2, 50 Not Used
+                    # 3, 51 Not Used
+                    # 65 Feeds paper to (cutting position + [n x basic calculated pitch]) and performs a full cut
+                    # 66 Feeds paper to (cutting position + [n x basic calculated pitch]) and performs a partial cut
+                    # (one point uncut)
+                    # 67 Not Used
+                    # 68 Not Used
+GS_57_nL_nH='\x1d\x57'
+                    # Set print region width
+                    # 0 ≤ nL ≤ 255, 0 ≤ nH ≤ 255
+                    # Sets the print region width specified by nL and nH.
+                    # Print region width is [(nL + nH x 256) x basic calculated pitch].
+GS_5c_nL_nH='\x1d\x5c'
+                    # Specify relative position for character vertical direction in page mode
+                    # 0 ≤ nL ≤ 255, 0 ≤ nH ≤ 255
+                    # Specifies the character vertical direction position for the data expansion starting position using the
+                    # relative position based on the current point in page mode. This sets the position moved from the
+                    # current position to [(nL + nH x 256) x basic calculated pitch] for the next data expanding starting
+                    # position.
+GS_5e_r_t_m='\x1d\x5e'
+                    # Execute macro
+                    # 0 ≤ r ≤ 255, 0 ≤ t ≤ 255, 0 ≤ m ≤ 1
+                    # Executes a defined macro.
+GS_61_n='\x1d\x61'  # Enable/disable transmission of automatic status
+                    # 0 ≤ n ≤ 255
+                    # Selects the statuses that are targeted for transmission with the automatic status function (ASB: Automatic Status Back).
+                    # Bit Statuses Targeted for ASB 0 1
+                    # 7 Black Mark Detector Invalid Valid
+                    # 6 Undefined --- ---
+                    # 5 Undefined --- ---
+                    # 4 Undefined --- ---
+                    # 3 Continuous Paper Detector Invalid Valid
+                    # 2 Error Invalid Valid
+                    # 1 ONLINE/OFFLINE Status Invalid Valid
+                    # 0 Drawer kick connector pin #3 Invalid Valid
+GS_62_n='\x1d\x62'  # Specify/cancel smoothing
+                    # 0 ≤ n ≤ 255, Initial Value n = 0
+                    # Specifies or cancels smoothing.
+                    #  Cancels smoothing when n = <*******0>B.
+                    #  Specifies smoothing when n = <*******1>B.
+GS_c='\x1d\x63'     # Print counter
+                    # After expanding the current serial counter value as print data (a character string) to the print buffer,
+                    # the printer counts up or counts down according to the count mode.
+GS_66_n='\x1d\x66'  # Select HRI character font
+                    # n = 0,1,48,49; Initial Value n = 0
+                    # Selects the printing position of HRI character font when printing bar codes.
+                    # n Font
+                    # 0, 48 Selects Font A (12 x 24).
+                    # 1, 49 Selects Font B (9 x 17).
+GS_68_n='\x1d\x68'  # Set bar code height
+                    # 1 ≤ n ≤ 255, Initial Value n = 162
+                    # Sets bar code height to n dots.
+GS_6b_m='\x1d\x6b'
+GS_6b_m_n='\x1d\x6b'
+                    # Print bar code
+                    # GS k m d1...dk NUL
+                    # GS k m n d1...dk
+                    # 1. 0 ≤ m ≤ 6 The definition region of k and d differ according to the bar code type.
+                    # 2. 65 ≤ m ≤ 73 The definition region of n and d differ according to the bar code type.
+                    # Selects bar code type and prints bar codes.
+                    # For 1:
+                    # m Bar Code Type Defined region of k Defined region of d
+                    # 0 UPC-A 11 ≤ k ≤ 12 48 ≤ d ≤ 57
+                    # 1 UPC-E 11 ≤ k ≤ 12 48 ≤ d ≤ 57
+                    # 2 JAN13 (EAN13) 12 ≤ k ≤ 13 48 ≤ d ≤ 57
+                    # 3 JAN8 (EAN8) 7 ≤ k ≤ 8 48 ≤ d ≤ 57
+                    # 4 CODE39 1 ≤ k 48 ≤ d ≤ 57, 65 ≤ d ≤ 90,32, 36, 37, 43, 45, 46, 47
+                    # 5 ITF 2 ≤ k (However, this is an even number.) 48 ≤ d ≤ 57
+                    # 6 CODABAR 1 ≤ k 48 ≤ d ≤ 57, 65 ≤ d ≤ 68,36, 43, 45, 46, 47, 58
+                    # For 2:
+                    # m Bar Code Type Defined region of n Defined region of d
+                    # 65 UPC-A 11 ≤ n ≤ 12 48 ≤ d ≤ 57
+                    # 66 UPC-E 11 ≤ n ≤ 12 48 ≤ d ≤ 57
+                    # 67 JAN13(EAN13) 12 ≤ n ≤ 13 48 ≤ d ≤ 57
+                    # 68 JAN8(EAN8) 7 ≤ n ≤ 8 48 ≤ d ≤ 57
+                    # 69 CODE39 1 ≤ n ≤ 255 48 ≤ d ≤ 57, 65 ≤ d ≤ 90,
+                    # 32, 36, 37, 43, 45, 46, 47
+                    # 70 ITF 2 ≤ n ≤ 255 (Even number)   48 ≤ d ≤ 57
+                    # 71 CODABAR 1 ≤ n ≤ 255 48 ≤ d ≤ 57, 65 ≤ d ≤ 68, 36, 43, 45, 46, 47, 58
+                    # 72 CODE93 1 ≤ n ≤ 255 0 ≤ d ≤ 127
+                    # 73 CODE128 2 ≤ n ≤ 255 0 ≤ d ≤ 127
+GS_72_n='\x1d\x72'  # Transmission of status
+                    # n = 1, 2, 49, 50
+                    # Sends the specified status.
+                    # n = 1, 49: Sends paper detector status
+                    # n = 2, 50: Sends the drawer kick connector status.
+GS_76_0_m_xL_Hy_yL_yH='\x1d\x76\x00'
+                    # Print raster bit images
+                    # 0 ≤ m ≤ 3, 48 ≤ m ≤ 51
+                    # 0 ≤ xL ≤ 255
+                    # 0 ≤ xH ≤ 255
+                    # 0 ≤ yL ≤ 255
+                    # 0 ≤ yH ≤ 8
+                    # 0 ≤ d ≤ 255
+                    # k = (xL+xH×256) × (yL+yH×256) However, k ≠ 0
+                    # Prints raster method bit images using mode m.
+                    # m Mode Density of Vert. Dir. Dots Density of Hor. Dir. Dots
+                    # 0, 48 Normal Mode 180 DPI 180 DPI
+                    # 1, 49 Double-wide Mode 180 DPI 90 DPI
+                    # 2, 50 Double-tall Mode 90 DPI 180 DPI
+                    # 3, 51 Quadruple Mode 90 DPI 90 DPI
+GS_77_n='\x1d\x77'  # Set bar code horizontal size
+                    # 1 ≤ n ≤ 6, Initial Value n = 3
+                    # Sets the bar code horizontal size.
 
+### Chinese Character Control Commands
+FS_21_n='\x1c\x21'  # Batch specify Chinese character print mode
+                    # 0 ≤ n ≤ 255, Initial Value n = 0
+                    # Batch specifies the Chinese character print mode
+                    # Bit Function 0 1
+                    # 7 Underline OFF ON
+                    # 6 Undefined --- ---
+                    # 5 Undefined --- ---
+                    # 4 Undefined --- ---
+                    # 3 Double tall expanded OFF ON
+                    # 2 Expanded wide OFF ON
+                    # 1 Undefined --- ---
+                    # 0 Undefined --- ---
+FS_26='\x1c\x26'    # Specify Chinese character mode
 
+FS_2d_n='\x1c\x2d'  # Specify/cancel Chinese character underline
+                    # 0 ≤ n ≤ 2, 48 ≤ n ≤ 50, Initial Value n = 0
+                    # Specifies or cancels Chinese character underlines.
+                    # n Function
+                    # 0, 48 Cancels Chinese character underline
+                    # 1, 49 Sets to one-dot width Chinese character underline and specifies Chinese character underlines.
+                    # 2, 50 Sets to two-dot width Chinese character underline and cancels Chinese character underlines.
+FS_2e='\x1c\x2e'    # Cancel Chinese character mode
 
-
-
-
+FS_32_c1_c2='\x1c\x32'
+                    # Define external character
+                    # FS 2 c1 c2 d1...dk
+                    # c1 and c2 differ according to specifications and code type.
+                    # 0 ≤ d ≤ 255
+                    # k = 72
+                    # Defines the external character pattern of the Chinese character to a character code specified by c1 and c2.
+FS_43_n='\x1c\x43'  # Select Chinese character code type
+                    # n = 0, 1, 48, 49; Initial Value n = 0
+                    # Selects the Chinese character code type.
+                    # n Selection
+                    # 0, 48 JIS Code Type
+                    # 1, 49 SHIFT-JIS Code Type
+FS_53_n1_n2='\x1c\x53'
+                    # Set Chinese character space amount
+                    # FS S n1 n2
+                    # 0 ≤ n1 ≤ 255, 0 ≤ n2 ≤ 255; Initial Value n1 = 0,n2 = 0
+                    # Sets the Chinese character space amount and right space amount.
+                    # Left space amount: n1 x (basic calculated pitch)
+                    # Right space amount: n2 x (basic calculated pitch)
+FS_57_n='\x1c\x57'  # Specify/cancel double-tall, double wide Chinese characters
+                    # 0 ≤ n ≤ 255, Initial Value n = 0
+                    # Specifies or cancels quadruple size Chinese characters.
+                    #  Cancels quadruple size when n = <*******0>B.
+                    #  Specifies quadruple size when n = <*******1>B.
 
 #######################################################################################################################
