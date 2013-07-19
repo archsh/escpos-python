@@ -15,6 +15,9 @@ from . import commands
 
 class Escpos(object):
     """ ESC/POS Printer object """
+    SUPPORTED_BARCODES = []
+    SUPPORTED_IMAGE    = False
+    CHARS_PER_LINE     = None
     #device    = None
     
     """ ESC/POS Commands (Constants) """
@@ -173,6 +176,10 @@ class Escpos(object):
 
     def barcode(self, code, bc, width=98, height=2, pos='OFF', font='A'):
         """ Print Barcode """
+        if not self.SUPPORTED_BARCODES:
+            return
+        elif bc not in self.SUPPORTED_BARCODES:
+            return
         output = list()
         # Align Bar Code()
         output.append(self.TXT_ALIGN_CT)
@@ -230,7 +237,7 @@ class Escpos(object):
         if txt:
             self._raw(txt)
     
-    def font(self, font=None,type=None,width=None,height=None):
+    def font(self, font='A',type='NORMAL',width=1,height=1):
         output = list()
         if font and font.upper() == "B":
             output.append(self.TXT_FONT_B)
@@ -283,67 +290,14 @@ class Escpos(object):
                 self._raw(self.TXT_ALIGN_LT)
         else:
             output.append(self.TXT_ALIGN_LT)
-     
-    def set(self, align=None, font=None, type=None, width=None, height=None):
-        """ Set text properties """
-        output = list()
-        # Align
-        if align is not None:
-            if align.upper() == "CENTER":
-                output.append(self.TXT_ALIGN_CT)
-            elif align.upper() == "RIGHT":
-                output.append(self.TXT_ALIGN_RT)
-            elif align.upper() == "LEFT":
-                output.append(self.TXT_ALIGN_LT)
-        # Font
-        if font is not None:
-            if font.upper() == "B":
-                output.append(self.TXT_FONT_B)
-            else:  # DEFAULT FONT: A
-                output.append(self.TXT_FONT_A)
-        # Type
-        if type is not None:
-            if type.upper() == "B":
-                output.append(self.TXT_BOLD_ON)
-                output.append(self.TXT_UNDERL_OFF)
-            elif type.upper() == "U":
-                output.append(self.TXT_BOLD_OFF)
-                output.append(self.TXT_UNDERL_ON)
-            elif type.upper() == "U2":
-                output.append(self.TXT_BOLD_OFF)
-                output.append(self.TXT_UNDERL2_ON)
-            elif type.upper() == "BU":
-                output.append(self.TXT_BOLD_ON)
-                output.append(self.TXT_UNDERL_ON)
-            elif type.upper() == "BU2":
-                output.append(self.TXT_BOLD_ON)
-                output.append(self.TXT_UNDERL2_ON)
-            elif type.upper == "NORMAL":
-                output.append(self.TXT_BOLD_OFF)
-                output.append(self.TXT_UNDERL_OFF)
-        # Width
-        if width is not None and height is not None:
-            if width == 2 and height != 2:
-                output.append(self.TXT_NORMAL)
-                output.append(self.TXT_2WIDTH)
-            elif height == 2 and width != 2:
-                output.append(self.TXT_NORMAL)
-                output.append(self.TXT_2HEIGHT)
-            elif height == 2 and width == 2:
-                output.append(self.TXT_2WIDTH)
-                output.append(self.TXT_2HEIGHT)
-            else: # DEFAULT SIZE: NORMAL
-                output.append(self.TXT_NORMAL)
-        
-        if output:
-            self._raw(''.join(output))
 
-    def cut(self, mode='',n=None):
+    def cut(self, mode='',n=0):
         """ Cut paper """
         # Fix the size between last line and cut
         # TODO: handle this with a line feed
         #self._raw("\n\n\n\n")
-        if n:
+        self._raw(commands.LF)
+        if n is not None:
             if mode.upper() == "PART":
                 c = commands.GS_56_m+chr(66)+chr(n)
             else: # DEFAULT MODE: FULL CUT
@@ -353,6 +307,7 @@ class Escpos(object):
                 c = commands.GS_56_m+chr(1)
             else: # DEFAULT MODE: FULL CUT
                 c = commands.GS_56_m+chr(0)
+        self._raw(c)
 
 
     def cashdraw(self, pin=2):
