@@ -18,6 +18,8 @@ class Escpos(object):
     SUPPORTED_BARCODES = []
     SUPPORTED_IMAGE    = False
     CHARS_PER_LINE     = None
+    CODE128_TYPE       = '{A'
+    BARCODE_PREFIX     = None # '\x1b\x61\x00'
     #device    = None
     
     """ ESC/POS Commands (Constants) """
@@ -62,13 +64,17 @@ class Escpos(object):
     BARCODE_FONT_B  = '\x1d\x66\x01' # Font type B for HRI barcode chars
     BARCODE_HEIGHT  = '\x1d\x68\x64' # Barcode Height [1-255]
     BARCODE_WIDTH   = '\x1d\x77\x03' # Barcode Width  [2-6]
-    BARCODE_UPC_A   = '\x1d\x6b\x00' # Barcode type UPC-A
-    BARCODE_UPC_E   = '\x1d\x6b\x01' # Barcode type UPC-E
-    BARCODE_EAN13   = '\x1d\x6b\x02' # Barcode type EAN13
-    BARCODE_EAN8    = '\x1d\x6b\x03' # Barcode type EAN8
-    BARCODE_CODE39  = '\x1d\x6b\x04' # Barcode type CODE39
-    BARCODE_ITF     = '\x1d\x6b\x05' # Barcode type ITF
-    BARCODE_NW7     = '\x1d\x6b\x06' # Barcode type NW7
+    BARCODE_TYPES   = {
+        'UPC-A': commands.GS_6b_m_n+chr(65),
+        'UPC-E': commands.GS_6b_m_n+chr(66),
+        'EAN13': commands.GS_6b_m_n+chr(67),
+        'EAN8': commands.GS_6b_m_n+chr(68),
+        'CODE39': commands.GS_6b_m_n+chr(69),
+        'ITF': commands.GS_6b_m_n+chr(70),
+        'CODABAR': commands.GS_6b_m_n+chr(71),
+        'CODE93': commands.GS_6b_m_n+chr(72),
+        'CODE128': commands.GS_6b_m_n+chr(73),
+    }
     # Image format  
     S_RASTER_N      = '\x1d\x76\x30\x00' # Set raster image normal size
     S_RASTER_2W     = '\x1d\x76\x30\x01' # Set raster image double width
@@ -82,7 +88,10 @@ class Escpos(object):
         assert isinstance(intfs,interfaces.Interface)
         self.device = intfs
         self._raw = intfs._raw
-        self.font_mode = 0
+        for tp in self.SUPPORTED_BARCODES:
+            if tp not in self.BARCODE_TYPES:
+                raise Error('Invalid SUPPORTED_BARCODES!')
+        
     
     def check_health(self):
         pass
@@ -182,7 +191,8 @@ class Escpos(object):
             return
         output = list()
         # Align Bar Code()
-        output.append(self.TXT_ALIGN_CT)
+        if self.BARCODE_PREFIX:
+            output.append(self.BARCODE_PREFIX)
         # Height
         if height >=2 or height <=6:
             output.append(self.BARCODE_HEIGHT)
@@ -207,21 +217,12 @@ class Escpos(object):
             output.append(self.BARCODE_TXT_ABV)
         else:  # DEFAULT POSITION: BELOW 
             output.append(self.BARCODE_TXT_BLW)
-        # Type 
-        if bc.upper() == "UPC-A":
-            output.append(self.BARCODE_UPC_A)
-        elif bc.upper() == "UPC-E":
-            output.append(self.BARCODE_UPC_E)
-        elif bc.upper() == "EAN13":
-            output.append(self.BARCODE_EAN13)
-        elif bc.upper() == "EAN8":
-            output.append(self.BARCODE_EAN8)
-        elif bc.upper() == "CODE39":
-            output.append(self.BARCODE_CODE39)
-        elif bc.upper() == "ITF":
-            output.append(self.BARCODE_ITF)
-        elif bc.upper() == "NW7":
-            output.append(self.BARCODE_NW7)
+        # Type
+        if bc.upper() in self.SUPPORTED_BARCODES:
+            output.append(self.BARCODE_TYPES[bc.upper()])
+            if bc.upper() == 'CODE128':
+                if self.CODE128_TYPE:
+                    output.append(self.CODE128_TYPE)
         else:
             raise BarcodeTypeError()
         # Print Code
