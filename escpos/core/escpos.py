@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 '''
 @author: Manuel F Martinez <manpaz@bashlinux.com>
 @organization: Bashlinux
@@ -9,12 +9,13 @@
 import Image
 import time
 
-from constants import *
 from exceptions import *
+from . import interfaces
+from . import commands
 
 class Escpos(object):
     """ ESC/POS Printer object """
-    device    = None
+    #device    = None
     
     """ ESC/POS Commands (Constants) """
 
@@ -70,6 +71,17 @@ class Escpos(object):
     S_RASTER_2H     = '\x1d\x76\x30\x02' # Set raster image double height
     S_RASTER_Q      = '\x1d\x76\x30\x03' # Set raster image quadruple
 
+    def __init__(self, intfs):
+        """
+        (intfs)-> An interface instance should be provided.
+        """
+        assert isinstance(intfs,interfaces.Interface)
+        self.device = intfs
+        self._raw = intfs._raw
+    
+    def check_health(self):
+        pass
+    
 
     def _check_image_size(self, size):
         """ Check and fix the size of the image to 32 bits """
@@ -212,14 +224,12 @@ class Escpos(object):
         if output:
             self._raw(''.join(output))
 
-        
     def text(self, txt):
         """ Print alpha-numeric text """
         if txt:
             self._raw(txt)
         else:
             raise TextError()
-
 
     def set(self, align=None, font=None, type=None, width=None, height=None):
         """ Set text properties """
@@ -274,7 +284,6 @@ class Escpos(object):
         
         if output:
             self._raw(''.join(output))
-
 
     def cut(self, mode=''):
         """ Cut paper """

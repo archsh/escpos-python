@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 '''
 @author: Mingcai SHEN <archsh@gmail.com>
 @organization: FANGZE SYSTEMS

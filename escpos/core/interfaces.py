@@ -11,10 +11,16 @@ import usb.util
 import serial
 import socket
 
-from escpos import *
-from constants import *
-from exceptions import *
-class Usb(Escpos):
+from . import exceptions
+
+class Interface(object):
+    """
+    Abstract class of interfaces.
+    """
+    def _raw(self, msg):
+        raise exceptions.DeviceError(msg='Use the instance of Interface is now allowed!')
+
+class Usb(Interface):
     """ Define USB printer """
 
     def __init__(self, idVendor, idProduct, interface=0, in_ep=0x82, out_ep=0x01):
@@ -66,7 +72,7 @@ class Usb(Escpos):
 
 
 
-class Serial(Escpos):
+class Serial(Interface):
     """ Define Serial printer """
 
     def __init__(self, devfile="/dev/ttyS0", baudrate=9600, bytesize=8, timeout=1):
@@ -105,7 +111,7 @@ class Serial(Escpos):
 
 
 
-class Network(Escpos):
+class Network(Interface):
     """ Define Network printer """
 
     def __init__(self,host,port=9100):
