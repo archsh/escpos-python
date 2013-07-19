@@ -40,7 +40,7 @@ DLE_14_n_m_t='\x10\x14'
                     # m = 0: #2 Pin of the drawer kick connector
                     # m = 1: #5 Pin of the drawer kick connector
                     # On time is set to t x 100 msec; Off time is set to t x 100 msec.
-ESC_0c='\xqb\x0c'   # Print data in page mode
+ESC_0c='\x1b\x0c'   # Print data in page mode
                     # Prints all buffered data in the print area collectively in page mode.
 ESC_20_n='\x1b\x20' # Set character right space amount
                     # 0 ≤ n ≤ 255, n = 0

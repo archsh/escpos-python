@@ -36,12 +36,13 @@ class Escpos(object):
     PAPER_FULL_CUT  = '\x1d\x56\x00' # Full cut paper
     PAPER_PART_CUT  = '\x1d\x56\x01' # Partial cut paper
     # Text format   
-    TXT_NORMAL      = '\x1b\x21\x00' # Normal text
-    TXT_2HEIGHT     = '\x1b\x21\x10' # Double height text
-    TXT_2WIDTH      = '\x1b\x21\x20' # Double width text
-    TXT_UNDERL_OFF  = '\x1b\x2d\x00' # Underline font OFF
-    TXT_UNDERL_ON   = '\x1b\x2d\x01' # Underline font 1-dot ON
-    TXT_UNDERL2_ON  = '\x1b\x2d\x02' # Underline font 2-dot ON
+    TXT_NORMAL      = '\x1b\x21\x00\x1c\x21\x00' # Normal text
+    TXT_2HEIGHT     = '\x1b\x21\x10\x1c\x21\x08' # Double height text
+    TXT_2WIDTH      = '\x1b\x21\x20\x1c\x21\x04' # Double width text
+    TXT_2SIZE       = '\x1b\x21\x30\x1c\x21\x0c' # Double width and height text
+    TXT_UNDERL_OFF  = '\x1b\x2d\x00\x1c\x2d\x00' # Underline font OFF
+    TXT_UNDERL_ON   = '\x1b\x2d\x01\x1c\x2d\x01' # Underline font 1-dot ON
+    TXT_UNDERL2_ON  = '\x1b\x2d\x02\x1c\x2d\x02' # Underline font 2-dot ON
     TXT_BOLD_OFF    = '\x1b\x45\x00' # Bold font OFF
     TXT_BOLD_ON     = '\x1b\x45\x01' # Bold font ON
     TXT_FONT_A      = '\x1b\x4d\x00' # Font type A
@@ -78,6 +79,7 @@ class Escpos(object):
         assert isinstance(intfs,interfaces.Interface)
         self.device = intfs
         self._raw = intfs._raw
+        self.font_mode = 0
     
     def check_health(self):
         pass
@@ -169,7 +171,7 @@ class Escpos(object):
 
         self._print_image(pix_line, img_size)
 
-    def barcode(self, code, bc, width, height, pos, font):
+    def barcode(self, code, bc, width=98, height=2, pos='OFF', font='A'):
         """ Print Barcode """
         output = list()
         # Align Bar Code()
@@ -263,11 +265,10 @@ class Escpos(object):
                 output.append(self.TXT_NORMAL)
                 output.append(self.TXT_2HEIGHT)
             elif height == 2 and width == 2:
-                output.append(self.TXT_2WIDTH)
-                output.append(self.TXT_2HEIGHT)
+                output.append(self.TXT_2SIZE)
+                #output.append(self.TXT_2HEIGHT)
             else: # DEFAULT SIZE: NORMAL
                 output.append(self.TXT_NORMAL)
-        
         if output:
             self._raw(''.join(output))
     
@@ -337,15 +338,21 @@ class Escpos(object):
         if output:
             self._raw(''.join(output))
 
-    def cut(self, mode=''):
+    def cut(self, mode='',n=None):
         """ Cut paper """
         # Fix the size between last line and cut
         # TODO: handle this with a line feed
-        self._raw("\n\n\n\n")
-        if mode.upper() == "PART":
-            self._raw(self.PAPER_PART_CUT)
-        else: # DEFAULT MODE: FULL CUT
-            self._raw(self.PAPER_FULL_CUT)
+        #self._raw("\n\n\n\n")
+        if n:
+            if mode.upper() == "PART":
+                c = commands.GS_56_m+chr(66)+chr(n)
+            else: # DEFAULT MODE: FULL CUT
+                c = commands.GS_56_m+chr(65)+chr(n)
+        else:
+            if mode.upper() == "PART":
+                c = commands.GS_56_m+chr(1)
+            else: # DEFAULT MODE: FULL CUT
+                c = commands.GS_56_m+chr(0)
 
 
     def cashdraw(self, pin=2):
