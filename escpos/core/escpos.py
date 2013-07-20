@@ -18,6 +18,7 @@ from . import commands
 
 BARCODE_REGEX=r'BARCODE\(\"(?P<value>[A-Z0-9a-z-_]+)\"\,\"(?P<bc>[A-Z0-9]+)\"\,(?P<width>[0-9]+)\,(?P<height>[0-9]+)\)'
 QRCODE_REGEX=r'QRCODE\(\"(?P<value>[A-Z0-9a-z-_]+)\"\,(?P<size>[0-9]+)\,(?P<border>[0-9]+)\,(?P<version>[0-9]+)\)'
+CONTROL_REGEX=r'CONTROL\(\"(?P<value>[A-Z0-9a-z-_]+)\"\)'
 
 def transcode_unicode(val,codec='utf8'):
     if isinstance(val,str):
@@ -464,6 +465,7 @@ class Escpos(object):
     
     def text_formatted(self, txt, codec="gbk"):
         texts = deflat_list([regex_to_list(x,QRCODE_REGEX,'QRCODE') for x in regex_to_list(txt,BARCODE_REGEX,'BARCODE')])
+        texts = deflat_list([regex_to_list(x,CONTROL_REGEX,'CONTROL') for x in texts])
         #print texts
         for x in texts:
             if isinstance(x,(str,unicode)):
@@ -474,5 +476,7 @@ class Escpos(object):
                     self.barcode(x[1]['value'],x[1]['bc'],int(x[1]['width']),int(x[1]['height']))
                 elif x[0]=='QRCODE':
                     self.qr_code(x[1]['value'],int(x[1]['size']),int(x[1]['border']),int(x[1]['version']))
+                elif x[0]=='CONTROL':
+                    self.control(x[1]['value'])
             else:
                 pass    
