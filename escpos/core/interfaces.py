@@ -119,21 +119,21 @@ class Serial(Interface):
 class Network(Interface):
     """ Define Network printer """
 
-    def __init__(self,host,port=9100):
+    def __init__(self,host,port=9100,timeout=5.0):
         """
         @param host : Printer's hostname or IP address
         @param port : Port to write to
         """
         self.host = host
         self.port = port
-        self.open()
+        self.open(timeout=timeout)
 
 
-    def open(self):
+    def open(self,timeout=5.0):
         """ Open TCP socket and set it as escpos device """
         self.device = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.device.settimeout(timeout)
         self.device.connect((self.host, self.port))
-
         if self.device is None:
             print "Could not open socket for %s" % self.host
 
@@ -142,7 +142,6 @@ class Network(Interface):
 
     def _write(self, msg):
         self.device.send(msg)
-
 
     def __del__(self):
         """ Close TCP connection """

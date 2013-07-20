@@ -13,9 +13,9 @@ from escpos.core import escpos, interfaces, commands
 from escpos.adapters.zonerich import Zonerich_AB_88V
 from escpos.adapters.epson import EPSON_TM_T81, EPSON_TM_T88, EPSON_TM_U288B
 
-printer = EPSON_TM_U288B(interfaces.Serial(devfile='COM4',baudrate=9600))
+#printer = EPSON_TM_U288B(interfaces.Serial(devfile='COM4',baudrate=9600))
 #printer = Zonerich_AB_88V(interfaces.Network('172.20.1.80'))
-#printer = EPSON_TM_T81(interfaces.Network('172.20.1.81'))
+printer = EPSON_TM_T81(interfaces.Network('172.20.1.81'))
 #printer._write(commands.DLE_04_n+chr(4))
 #ret = printer._read()
 #print 'Ret: {0:08b}'.format(ord(ret))
