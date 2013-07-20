@@ -324,7 +324,7 @@ class Escpos(object):
         if code:
             if bc.upper() == 'CODE128':
                 if self.CODE128_TYPE:
-                    print 'Add: ',self.CODE128_TYPE
+                    #print 'Add: ',self.CODE128_TYPE
                     code = ''.join([self.CODE128_TYPE,code])
             code_length = len(code)
             if bc.upper() == "EAN13" and (code_length<12 or code_length>13):
