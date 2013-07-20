@@ -88,14 +88,31 @@ class Escpos(object):
         """
         assert isinstance(intfs,interfaces.Interface)
         self.device = intfs
-        self._raw = intfs._raw
+        self._write = intfs._write
+        self._read  = intfs._read
         for tp in self.SUPPORTED_BARCODES:
             if tp not in self.BARCODE_TYPES:
                 raise Error('Invalid SUPPORTED_BARCODES!')
         
+    def initialize(self):
+        self._write(commands.ESC_40)
     
-    def check_health(self):
-        pass
+    def check_available(self,flag=True):
+        self._write(commands.DLE_04_n+chr(1))
+        ret = self._read(n=1)
+        if not ret:
+            raise DeviceError(msg='Printer No Response.')
+        ret = ord(ret)
+        #print 'Ret: {0:08b}'.format(ret)
+        if flag and ret&0x08:
+            # Printer Off Line
+            raise DeviceError(msg='Printer Off Line.')
+        self._write(commands.DLE_04_n+chr(4))
+        ret = ord(self._read(n=4))
+        #print 'Ret: {0:08b}'.format(ret)
+        if flag and ret&0x6c:
+            raise DeviceError(msg='Printer Paper Out.')
+
     
 
     def _check_image_size(self, size):
@@ -132,7 +149,7 @@ class Escpos(object):
                 buffer = ""
                 cont = 0
         if output:
-            self._raw(''.join(output))
+            self._write(''.join(output))
 
 
     def image(self, img):
@@ -245,12 +262,12 @@ class Escpos(object):
         else:
             raise exception.BarcodeCodeError()
         if output:
-            self._raw(''.join(output))
+            self._write(''.join(output))
 
     def text(self, txt):
         """ Print alpha-numeric text """
         if txt:
-            self._raw(txt)
+            self._write(txt)
     
     def font(self, font='A',type='NORMAL',width=1,height=1):
         output = list()
@@ -292,17 +309,17 @@ class Escpos(object):
             else: # DEFAULT SIZE: NORMAL
                 output.append(self.TXT_NORMAL)
         if output:
-            self._raw(''.join(output))
+            self._write(''.join(output))
     
     def align(self, align=None):
         # Align
         if align is not None:
             if align.upper() == "CENTER":
-                self._raw(self.TXT_ALIGN_CT)
+                self._write(self.TXT_ALIGN_CT)
             elif align.upper() == "RIGHT":
-                self._raw(self.TXT_ALIGN_RT)
+                self._write(self.TXT_ALIGN_RT)
             elif align.upper() == "LEFT":
-                self._raw(self.TXT_ALIGN_LT)
+                self._write(self.TXT_ALIGN_LT)
         else:
             output.append(self.TXT_ALIGN_LT)
 
@@ -310,8 +327,8 @@ class Escpos(object):
         """ Cut paper """
         # Fix the size between last line and cut
         # TODO: handle this with a line feed
-        #self._raw("\n\n\n\n")
-        self._raw(commands.LF)
+        #self._write("\n\n\n\n")
+        self._write(commands.LF)
         if n is not None:
             if mode.upper() == "PART":
                 c = commands.GS_56_m+chr(66)+chr(n)
@@ -322,15 +339,15 @@ class Escpos(object):
                 c = commands.GS_56_m+chr(1)
             else: # DEFAULT MODE: FULL CUT
                 c = commands.GS_56_m+chr(0)
-        self._raw(c)
+        self._write(c)
 
 
     def cashdraw(self, pin=2):
         """ Send pulse to kick the cash drawer """
         if pin == 2:
-            self._raw(self.CD_KICK_2)
+            self._write(self.CD_KICK_2)
         elif pin == 5:
-            self._raw(self.CD_KICK_5)
+            self._write(self.CD_KICK_5)
         else:
             raise CashDrawerError()
 
@@ -338,11 +355,11 @@ class Escpos(object):
     def hw(self, hw):
         """ Hardware operations """
         if hw.upper() == "INIT":
-            self._raw(self.HW_INIT)
+            self._write(self.HW_INIT)
         elif hw.upper() == "SELECT":
-            self._raw(self.HW_SELECT)
+            self._write(self.HW_SELECT)
         elif hw.upper() == "RESET":
-            self._raw(self.HW_RESET)
+            self._write(self.HW_RESET)
         else: # DEFAULT: DOES NOTHING
             pass
 
@@ -350,12 +367,12 @@ class Escpos(object):
     def control(self, ctl):
         """ Feed control sequences """
         if ctl.upper() == "LF":
-            self._raw(self.CTL_LF)
+            self._write(self.CTL_LF)
         elif ctl.upper() == "FF":
-            self._raw(self.CTL_FF)
+            self._write(self.CTL_FF)
         elif ctl.upper() == "CR":
-            self._raw(self.CTL_CR)
+            self._write(self.CTL_CR)
         elif ctl.upper() == "HT":
-            self._raw(self.CTL_HT)
+            self._write(self.CTL_HT)
         elif ctl.upper() == "VT":
-            self._raw(self.CTL_VT)
+            self._write(self.CTL_VT)

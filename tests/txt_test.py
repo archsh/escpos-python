@@ -37,8 +37,8 @@ BARCODE("XS130625-0002","CODE128",2,98)
              谢谢惠顾！             
 QRCODE("XS130625-0002",8,0,1)
 """
-#printer = EPSON_TM_U288B(interfaces.Serial(devfile='COM4',baudrate=9600))
-printer = EPSON_TM_T81(interfaces.Network('172.20.1.81'))
+printer = EPSON_TM_U288B(interfaces.Serial(devfile='COM4',baudrate=9600))
+#printer = EPSON_TM_T81(interfaces.Network('172.20.1.81'))
 #printer = Zonerich_AB_88V(interfaces.Network('172.20.1.80'))
 #printer.font(font='A',width=2,height=2)
 printer.text(TEXTS.encode('gbk'))

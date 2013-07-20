@@ -17,7 +17,7 @@ class Interface(object):
     """
     Abstract class of interfaces.
     """
-    def _raw(self, msg):
+    def _write(self, msg):
         raise exceptions.DeviceError(msg='Use the instance of Interface is now allowed!')
 
 class Usb(Interface):
@@ -57,9 +57,12 @@ class Usb(Interface):
             self.device.reset()
         except usb.core.USBError as e:
             print "Could not set configuration: %s" % str(e)
+    
+    def _read(self, n=None):
+        return self.device.read()
+    
 
-
-    def _raw(self, msg):
+    def _write(self, msg):
         """ Print any command sent in raw format """
         self.device.write(self.out_ep, msg, self.interface)
 
@@ -92,14 +95,16 @@ class Serial(Interface):
     def open(self):
         """ Setup serial port and set is as escpos device """
         self.device = serial.Serial(port=self.devfile, baudrate=self.baudrate, bytesize=self.bytesize, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=self.timeout, dsrdtr=True)
-
         if self.device is not None:
-            print "Serial printer enabled"
+            pass #print "Serial printer enabled"
         else:
             print "Unable to open serial printer on: %s" % self.devfile
 
-
-    def _raw(self, msg):
+    def _read(self, n=1):
+        return self.device.read(size=n)
+    
+    
+    def _write(self, msg):
         """ Print any command sent in raw format """
         self.device.write(msg)
 
@@ -132,8 +137,10 @@ class Network(Interface):
         if self.device is None:
             print "Could not open socket for %s" % self.host
 
+    def _read(self, n=None):
+        return self.device.recv(4096 if n is None else n,0)
 
-    def _raw(self, msg):
+    def _write(self, msg):
         self.device.send(msg)
 
 
