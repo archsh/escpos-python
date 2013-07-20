@@ -19,7 +19,7 @@ class Escpos(object):
     SUPPORTED_IMAGE    = False
     CHARS_PER_LINE     = None
     CODE128_TYPE       = '{A'
-    BARCODE_PREFIX     = None # '\x1b\x61\x00'
+    BARCODE_PREFIX     = '\x1b\x61\x01'
     #device    = None
     
     """ ESC/POS Commands (Constants) """
@@ -72,6 +72,7 @@ class Escpos(object):
         'CODE39': commands.GS_6b_m_n+chr(69),
         'ITF': commands.GS_6b_m_n+chr(70),
         'CODABAR': commands.GS_6b_m_n+chr(71),
+        'NW7': commands.GS_6b_m_n+chr(71),
         'CODE93': commands.GS_6b_m_n+chr(72),
         'CODE128': commands.GS_6b_m_n+chr(73),
     }
@@ -220,13 +221,26 @@ class Escpos(object):
         # Type
         if bc.upper() in self.SUPPORTED_BARCODES:
             output.append(self.BARCODE_TYPES[bc.upper()])
-            if bc.upper() == 'CODE128':
-                if self.CODE128_TYPE:
-                    output.append(self.CODE128_TYPE)
+            
         else:
             raise BarcodeTypeError()
         # Print Code
         if code:
+            if bc.upper() == 'CODE128':
+                if self.CODE128_TYPE:
+                    print 'Add: ',self.CODE128_TYPE
+                    code = ''.join([self.CODE128_TYPE,code])
+            code_length = len(code)
+            if bc.upper() == "EAN13" and (code_length<12 or code_length>13):
+                raise exception.BarcodeCodeError()
+            elif bc.upper() == "EAN8" and (code_length<7 or code_length>8):
+                raise exception.BarcodeCodeError()
+            elif bc.upper() == "CODE39" and (code_length<1 or code_length>255):
+                raise exception.BarcodeCodeError()
+            elif bc.upper() == "CODE128" and (code_length<2 or code_length>255):
+                raise exception.BarcodeCodeError()
+            output.append(chr(code_length))
+            
             output.append(code)
         else:
             raise exception.BarcodeCodeError()
