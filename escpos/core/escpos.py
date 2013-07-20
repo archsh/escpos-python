@@ -85,7 +85,6 @@ class Escpos(object):
     """ ESC/POS Printer object """
     SUPPORTED_BARCODES = []
     SUPPORTED_IMAGE    = False
-    CHARS_PER_LINE     = None
     CODE128_TYPE       = '{A'
     BARCODE_PREFIX     = '\x1b\x61\x01'
     #device    = None
