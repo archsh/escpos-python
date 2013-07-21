@@ -220,6 +220,8 @@ class Escpos(object):
 
     def image_raw(self,img_raw):
         """Print an Image object"""
+        if not self.SUPPORTED_IMAGE:
+            return
         pixels   = []
         pix_line = ""
         im_left  = ""
@@ -266,7 +268,8 @@ class Escpos(object):
 
     def image(self, img):
         """ Parse image and prepare it to a printable format """
-        
+        if not self.SUPPORTED_IMAGE:
+            return
         im_open = Image.open(img)
         self.image_raw(im_open)
 
