@@ -6,8 +6,8 @@
 @license: GPL
 '''
 
-import usb.core
-import usb.util
+#import usb.core
+#import usb.util
 import serial
 import socket
 
