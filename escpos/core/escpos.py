@@ -169,13 +169,13 @@ class Escpos(object):
         ret = self._read(n=1)
         if not ret:
             raise DeviceError(msg='Printer No Response.')
-        ret = ord(ret)
+        ret = ord(ret[0])
         #print 'Ret: {0:08b}'.format(ret)
         if flag and ret&0x08:
             # Printer Off Line
             raise DeviceError(msg='Printer Off Line.')
         self._write(commands.DLE_04_n+chr(4))
-        ret = ord(self._read(n=4))
+        ret = ord(self._read(n=4)[0])
         #print 'Ret: {0:08b}'.format(ret)
         if flag and ret&0x6c:
             raise DeviceError(msg='Printer Paper Out.')
