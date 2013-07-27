@@ -78,7 +78,7 @@ class Usb(Interface):
 class Serial(Interface):
     """ Define Serial printer """
 
-    def __init__(self, devfile="/dev/ttyS0", baudrate=9600, bytesize=8, timeout=0):
+    def __init__(self, devfile="/dev/ttyS0", baudrate=9600, bytesize=8, timeout=1, dsrdtr=False,xonxoff=False,stopbits=serial.STOPBITS_TWO,parity=serial.PARITY_NONE):
         """
         @param devfile  : Device file under dev filesystem
         @param baudrate : Baud rate for serial transmission
@@ -89,12 +89,16 @@ class Serial(Interface):
         self.baudrate = baudrate
         self.bytesize = bytesize
         self.timeout  = timeout
+        self.dsrdtr   = dsrdtr
+        self.xonxoff  = xonxoff
+        self.stopbits = stopbits
+        self.parity   = parity
         self.open()
 
 
     def open(self):
         """ Setup serial port and set is as escpos device """
-        self.device = serial.Serial(port=self.devfile, baudrate=self.baudrate, bytesize=self.bytesize, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=self.timeout, dsrdtr=False,xonxoff=False)
+        self.device = serial.Serial(port=self.devfile, baudrate=self.baudrate, bytesize=self.bytesize, parity=self.parity, stopbits=self.stopbits, timeout=self.timeout, dsrdtr=self.dsrdtr,xonxoff=self.xonxoff)
         if self.device is not None and self.device.writable():
             pass #print "Serial printer enabled"
         else:

@@ -19,6 +19,7 @@ from . import commands
 BARCODE_REGEX=r'BARCODE\(\"(?P<value>[A-Z0-9a-z-_]+)\"\,\"(?P<bc>[A-Z0-9]+)\"\,(?P<width>[0-9]+)\,(?P<height>[0-9]+)\)'
 QRCODE_REGEX=r'QRCODE\(\"(?P<value>[A-Z0-9a-z-_]+)\"\,(?P<size>[0-9]+)\,(?P<border>[0-9]+)\,(?P<version>[0-9]+)\)'
 CONTROL_REGEX=r'CONTROL\(\"(?P<value>[A-Z0-9a-z-_]+)\"\)'
+TAB_REGEX=r'TAB\((?P<value>[0-9,]+)\)'
 
 def transcode_unicode(val,codec='utf8'):
     if isinstance(val,str):
@@ -119,6 +120,7 @@ class Escpos(object):
     TXT_BOLD_ON     = '\x1b\x45\x01' # Bold font ON
     TXT_FONT_A      = '\x1b\x4d\x00' # Font type A
     TXT_FONT_B      = '\x1b\x4d\x01' # Font type B
+    TXT_FONT_C      = '\x1b\x4d\x02' # Font type C
     TXT_ALIGN_LT    = '\x1b\x61\x00' # Left justification
     TXT_ALIGN_CT    = '\x1b\x61\x01' # Centering
     TXT_ALIGN_RT    = '\x1b\x61\x02' # Right justification
@@ -160,23 +162,26 @@ class Escpos(object):
         for tp in self.SUPPORTED_BARCODES:
             if tp not in self.BARCODE_TYPES:
                 raise Error('Invalid SUPPORTED_BARCODES!')
+        self.initialize()
         
     def initialize(self):
         self._write(commands.ESC_40)
+        self._write(commands.ESC_53)
     
     def check_available(self,flag=True):
         self._write(commands.DLE_04_n+chr(1))
         ret = self._read(n=1)
         if not ret:
             raise DeviceError(msg='Printer No Response.')
+        print '1.Ret: ','-'.join(['{0:08b}'.format(ord(x)) for x in ret])
         ret = ord(ret[0])
-        #print 'Ret: {0:08b}'.format(ret)
         if flag and ret&0x08:
             # Printer Off Line
             raise DeviceError(msg='Printer Off Line.')
         self._write(commands.DLE_04_n+chr(4))
-        ret = ord(self._read(n=4)[0])
-        #print 'Ret: {0:08b}'.format(ret)
+        ret = self._read(n=1)
+        print '4.Ret: ','-'.join(['{0:08b}'.format(ord(x)) for x in ret])
+        ret = ord(ret[0])
         if flag and ret&0x6c:
             raise DeviceError(msg='Printer Paper Out.')
 
@@ -352,7 +357,9 @@ class Escpos(object):
     
     def font(self, font='A',type='NORMAL',width=1,height=1):
         output = list()
-        if font and font.upper() == "B":
+        if font and font.upper() == "C":
+            output.append(self.TXT_FONT_C)
+        elif font and font.upper() == "B":
             output.append(self.TXT_FONT_B)
         else:  # DEFAULT FONT: A
             output.append(self.TXT_FONT_A)
@@ -404,7 +411,7 @@ class Escpos(object):
         else:
             output.append(self.TXT_ALIGN_LT)
 
-    def cut(self, mode='',n=0):
+    def cut(self, mode='',n=None):
         """ Cut paper """
         # Fix the size between last line and cut
         # TODO: handle this with a line feed
@@ -460,15 +467,21 @@ class Escpos(object):
             
     @classmethod
     def format(klass,txt):
-        output = txt.replace('<B>',klass.TXT_2SIZE).replace('</B>',klass.TXT_NORMAL)\
+        #output = ''.join([x.strip() for x in txt.split('\n')])
+        output = output.replace('<B>',klass.TXT_2SIZE).replace('</B>',klass.TXT_NORMAL)\
                .replace('<W>',klass.TXT_2WIDTH).replace('</W>',klass.TXT_NORMAL)\
-               .replace('<H>',klass.TXT_2HEIGHT).replace('</H>',klass.TXT_NORMAL)
+               .replace('<H>',klass.TXT_2HEIGHT).replace('</H>',klass.TXT_NORMAL) \
+               .replace('<HT>',klass.CTL_HT).replace('<CR>',klass.CTL_LF)\
+               .replace('<L>',commands.ESC_61_n+chr(0)).replace('<C>',commands.ESC_61_n+chr(1)).replace('<R>',commands.ESC_61_n+chr(2))
         return output
     
     def text_formatted(self, txt, codec="gbk"):
         texts = deflat_list([regex_to_list(x,QRCODE_REGEX,'QRCODE') for x in regex_to_list(txt,BARCODE_REGEX,'BARCODE')])
         texts = deflat_list([regex_to_list(x,CONTROL_REGEX,'CONTROL') for x in texts])
+        texts = deflat_list([regex_to_list(x,TAB_REGEX,'TAB') for x in texts])
+        
         #print texts
+        #self._write(commands.ESC_4c)
         for x in texts:
             if isinstance(x,(str,unicode)):
                 x = x.encode('gbk')
@@ -480,5 +493,10 @@ class Escpos(object):
                     self.qr_code(x[1]['value'],int(x[1]['size']),int(x[1]['border']),int(x[1]['version']))
                 elif x[0]=='CONTROL':
                     self.control(x[1]['value'])
+                elif x[0]=='TAB':
+                    tabs = [int(n) for n in x[1]['value'].split(',')]
+                    if tabs:
+                        self._write(commands.ESC_44+''.join(map(lambda x:chr(x), tabs))+chr(0))
             else:
-                pass    
+                pass
+        self._write(commands.LF)
