@@ -468,7 +468,7 @@ class Escpos(object):
     @classmethod
     def format(klass,txt):
         #output = ''.join([x.strip() for x in txt.split('\n')])
-        output = output.replace('<B>',klass.TXT_2SIZE).replace('</B>',klass.TXT_NORMAL)\
+        output = txt.replace('<B>',klass.TXT_2SIZE).replace('</B>',klass.TXT_NORMAL)\
                .replace('<W>',klass.TXT_2WIDTH).replace('</W>',klass.TXT_NORMAL)\
                .replace('<H>',klass.TXT_2HEIGHT).replace('</H>',klass.TXT_NORMAL) \
                .replace('<HT>',klass.CTL_HT).replace('<CR>',klass.CTL_LF)\
