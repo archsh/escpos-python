@@ -19,6 +19,12 @@ class Interface(object):
     """
     def _write(self, msg):
         raise exceptions.DeviceError(msg='Use the instance of Interface is now allowed!')
+    def _writable(self):
+        return True
+    def _readable(self):
+        return True
+    
+    
 
 class Usb(Interface):
     """ Define USB printer """
@@ -78,7 +84,7 @@ class Usb(Interface):
 class Serial(Interface):
     """ Define Serial printer """
 
-    def __init__(self, devfile="/dev/ttyS0", baudrate=9600, bytesize=8, timeout=1, dsrdtr=False,xonxoff=False,stopbits=serial.STOPBITS_TWO,parity=serial.PARITY_NONE):
+    def __init__(self, devfile="/dev/ttyS0", baudrate=9600, bytesize=8, timeout=1, dsrdtr=False,rtscts=False,xonxoff=False,stopbits=serial.STOPBITS_TWO,parity=serial.PARITY_NONE):
         """
         @param devfile  : Device file under dev filesystem
         @param baudrate : Baud rate for serial transmission
@@ -93,12 +99,23 @@ class Serial(Interface):
         self.xonxoff  = xonxoff
         self.stopbits = stopbits
         self.parity   = parity
+        self.rtscts   = rtscts
         self.open()
+    
+    def _writable(self):
+        if self.dsrdtr or self.rtscts:
+            return self.device.getDSR()
+        return True
+    
+    def _readable(self):
+        if self.dsrdtr or self.rtscts:
+            return self.device.getDSR()
+        return True
 
 
     def open(self):
         """ Setup serial port and set is as escpos device """
-        self.device = serial.Serial(port=self.devfile, baudrate=self.baudrate, bytesize=self.bytesize, parity=self.parity, stopbits=self.stopbits, timeout=self.timeout, dsrdtr=self.dsrdtr,xonxoff=self.xonxoff)
+        self.device = serial.Serial(port=self.devfile, baudrate=self.baudrate, bytesize=self.bytesize, parity=self.parity, stopbits=self.stopbits, timeout=self.timeout, rtscts=self.rtscts, dsrdtr=self.dsrdtr,xonxoff=self.xonxoff)
         if self.device is not None and self.device.writable():
             pass #print "Serial printer enabled"
         else:

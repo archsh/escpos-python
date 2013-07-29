@@ -159,6 +159,8 @@ class Escpos(object):
         self.device = intfs
         self._write = intfs._write
         self._read  = intfs._read
+        self._writable = intfs._writable
+        self._readable = intfs._readable
         for tp in self.SUPPORTED_BARCODES:
             if tp not in self.BARCODE_TYPES:
                 raise Error('Invalid SUPPORTED_BARCODES!')
@@ -167,8 +169,13 @@ class Escpos(object):
     def initialize(self):
         self._write(commands.ESC_40)
         self._write(commands.ESC_53)
+        pass
     
     def check_available(self,flag=True):
+        if not self._writable():
+            raise DeviceError(msg='Device not ready.')
+        if not flag:
+            return True
         self._write(commands.DLE_04_n+chr(1))
         ret = self._read(n=1)
         if not ret:
@@ -184,6 +191,7 @@ class Escpos(object):
         ret = ord(ret[0])
         if flag and ret&0x6c:
             raise DeviceError(msg='Printer Paper Out.')
+        return True
 
     
 
